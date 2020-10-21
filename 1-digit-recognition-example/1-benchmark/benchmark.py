@@ -1,4 +1,4 @@
-import mnist
+from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 
 
@@ -198,21 +198,62 @@ class Softmax:
             return d_L_d_inputs.reshape(self.last_input_shape)
 
 
-# We only use the first 1k testing examples (out of 10k total)
-# in the interest of time. Feel free to change this if you want.
-test_images = mnist.test_images()[:1000]
-test_labels = mnist.test_labels()[:1000]
+mnist = input_data.read_data_sets('../mattwang44-LeNet-example/MNIST_data', one_hot=True)
 
 # We only use the first 1k examples of each set in the interest of time.
 # Feel free to change this if you want.
-train_images = mnist.train_images()[:1000]
-train_labels = mnist.train_labels()[:1000]
-test_images = mnist.test_images()[:1000]
-test_labels = mnist.test_labels()[:1000]
 
-conv = Conv3x3(8)  # 28x28x1 -> 26x26x8
+train_images = mnist.train.images[:1000].reshape(1000, 28, 28)
+train_labels_ = mnist.train.labels[:1000]
+test_images = mnist.test.images[:1000].reshape(1000, 28, 28)
+test_labels_ = mnist.test.labels[:1000]
+
+train_images[train_images > 0] = 1
+test_images[test_images > 0] = 1
+
+train_labels = []
+for x in train_labels_:
+    index_ = list(x).index(1)
+    train_labels.append(index_)
+
+train_labels = np.array(train_labels)
+
+test_labels = []
+for x in test_labels_:
+    index_ = list(x).index(1)
+    test_labels.append(index_)
+
+test_labels = np.array(test_labels)
+
+conv = Conv3x3(8)  # 28x28x1 -> 26x26x8 // Because there are too many empty 0s at the margin
 pool = MaxPool2()  # 26x26x8 -> 13x13x8
 softmax = Softmax(13 * 13 * 8, 10)  # 13x13x8 -> 10
+
+""""
+# Write the array to disk
+with open('test.txt', 'w') as outfile:
+    # I'm writing a header here just for the sake of readability
+    # Any line starting with "#" will be ignored by numpy.loadtxt
+    outfile.write('# Array shape: {0}\n'.format(train_images.shape))
+
+    # Iterating through a ndimensional array produces slices along
+    # the last axis. This is equivalent to data[i,:,:] in this case
+    for data_slice in train_images:
+        # The formatting string indicates that I'm writing out
+        # the values in left-justified columns 7 characters in width
+        # with 2 decimal places.
+        np.savetxt(outfile, data_slice, fmt='%-7.2f')
+
+        # Writing out a break to indicate different slices...
+        outfile.write('# New slice\n')
+"""""
+
+""""
+train_images = []
+train_labels_ = []
+test_images = []
+test_labels_ = []
+"""""
 
 
 def forward(image, label):
@@ -273,14 +314,14 @@ for epoch in range(3):
     # im: image
     # label: label
     for i, (im, label) in enumerate(zip(train_images, train_labels)):
-        if i > 0 and i % 100 == 99:
+        if i > 0 and i % 100 == 9:
             print(
                 '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
                 (i + 1, loss / 100, num_correct)
             )
             loss = 0
             num_correct = 0
-
+        # print(im)
         l, acc = train(im, label)
         loss += 1
         num_correct += acc
