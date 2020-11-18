@@ -225,7 +225,7 @@ for x in test_labels_:
 
 test_labels = np.array(test_labels)
 
-conv = Conv3x3(8)  # 28x28x1 -> 26x26x8 // Because there are too many empty 0s at the margin
+conv = Conv3x3(8)  # // Because there are too many empty 0s at the margin, so convert 28x28x1 -> 26x26x8
 pool = MaxPool2()  # 26x26x8 -> 13x13x8
 softmax = Softmax(13 * 13 * 8, 10)  # 13x13x8 -> 10
 
@@ -314,7 +314,7 @@ for epoch in range(3):
     # im: image
     # label: label
     for i, (im, label) in enumerate(zip(train_images, train_labels)):
-        if i > 0 and i % 100 == 9:
+        if i > 0 and i % 100 == 99:
             print(
                 '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
                 (i + 1, loss / 100, num_correct)

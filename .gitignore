@@ -132,3 +132,5 @@ dmypy.json
 .idea/
 
 MNIST_data/
+
+dataset/
