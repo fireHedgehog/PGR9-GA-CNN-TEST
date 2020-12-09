@@ -1,19 +1,7 @@
-from tensorflow.examples.tutorials.mnist import input_data
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
-# MNIST_data指的是存放数据的文件夹路径，one_hot=True 为采用one_hot的编码方式编码标签
-mnist = input_data.read_data_sets('../mattwang44-LeNet-example/MNIST_data', one_hot=True)
-
-# load data
-train_X = mnist.train.images  # 训练集样本
-# var_1000 = mnist.train.images[:1000]
-# print(var_1000)
-validation_X = mnist.validation.images  # 验证集样本
-test_X = mnist.test.images  # 测试集样本
-# labels
-train_Y = mnist.train.labels  # 训练集标签
-validation_Y = mnist.validation.labels  # 验证集标签
-test_Y = mnist.test.labels  # 测试集标签
+(train_X, train_Y), (test_X, test_Y) = tf.keras.datasets.mnist.load_data()
 
 print(train_X.shape, train_Y.shape)  # 输出训练集样本和标签的大小
 
