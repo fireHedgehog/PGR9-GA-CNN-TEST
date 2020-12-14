@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class MaxPool2FF:
+class MaxPool2:
     # A Max Pooling layer using a pool size of 2.
 
     def iterate_regions(self, image):
