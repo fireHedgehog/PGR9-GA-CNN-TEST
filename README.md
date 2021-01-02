@@ -4,6 +4,8 @@
 -----------------------------------------------------------------------------
 Reference:
 
+- [Stanford CS231n](http://cs231n.github.io/convolutional-networks/)
+
 ### Build CNN From Scratch
 https://github.com/mattwang44/LeNet-from-Scratch
 
