@@ -132,6 +132,7 @@ dmypy.json
 .idea/
 
 MNIST_data/
+fashion_mnist_data/
 
 dataset/
 
