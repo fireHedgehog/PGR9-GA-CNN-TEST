@@ -134,3 +134,8 @@ dmypy.json
 MNIST_data/
 
 dataset/
+
+dog_cat_data/
+cifar-10-batches-py/
+
+data/
