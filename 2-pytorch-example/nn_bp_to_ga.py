@@ -1,10 +1,34 @@
 import torch
+import numpy as np
+import torch.nn as nn
 
 dtype = torch.float
 device = torch.device("cpu")
 
 if torch.cuda.is_available():
     device = torch.device("cuda")  # a CUDA device object
+
+print(torch.cuda.is_available())
+print(device)
+
+np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5))
+torch.FloatTensor(20, 1, 5, 5).uniform_(-1, 1)
+elite_pool_1 = [np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)) for i in range(10)]
+
+# for idx, data in enumerate(elite_pool_1):
+#     # print(idx, data.shape)
+#     print(idx, data[19][0])
+
+
+# elite_pool_2 = [nn.Conv2d(1, 20, 5, 1) for i in range(20)]
+# for idx, data in enumerate(elite_pool_2):
+#     # print(idx, data.shape)
+#     print(idx, data)
+
+elite_pool_2 = [nn.Conv2d(20, 50, 5, 1) for i in range(20)]
+for idx, data in enumerate(elite_pool_2):
+    # print(idx, data.shape)
+    print(idx, data)
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
@@ -44,4 +68,86 @@ def bp_nn(w1, w2):
         w2 -= learning_rate * grad_w2
 
 
-bp_nn(w1=w_1, w2=w_2)
+def split_concat_array():
+    # simulate crossover
+    array_1 = np.array([
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ])
+
+    array_2 = np.array([
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+    ])
+
+    print(array_1.shape)
+    print(array_2.shape)
+
+    a = np.array_split(array_1, 2)
+    b = np.array_split(array_2, 2)
+
+    print(a[0])
+    print(b[0])
+
+    c = np.concatenate((a[0], b[1]))
+    d = np.concatenate((b[0], a[1]))
+
+    print(c)
+    print(d)
+
+
+def pop_pool_test():
+    all_parents = []
+
+    for i in range(10):
+        loss = np.random.rand()
+        all_parents.append({
+            'iter': i,
+            'loss': loss,
+            'weights': np.array([
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+            ]),
+        })
+
+    sorted_arr = sorted(all_parents, key=lambda x: x['loss'], reverse=True)
+    print('\nIter: {} , loss: {}'.format(sorted_arr[-1]['iter'], all_parents[-1]['loss']))
+
+    print(sorted_arr)
+
+    loss_new = np.random.rand()
+
+    # if the new loss is better than old one
+    # then replace it
+    if loss_new < sorted_arr[0]['loss']:
+        print(1)
+        sorted_arr[0] = {
+            'iter': 11,
+            'loss': loss_new,
+            'weights': np.array([
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+            ]),
+        }
+        print(sorted_arr)
+
+
+# pop_pool_test()
+
+# split_concat_array()
+
+# bp_nn(w1=w_1, w2=w_2)
+
+# print(np.empty((20, 1, 3, 3)))

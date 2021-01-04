@@ -78,7 +78,12 @@ if __name__ == '__main__':
 
 
     def mnist_test():
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+        # Assuming that we are on a CUDA machine, this should print a CUDA device:
+        print(torch.cuda.is_available())
+        print(device)
+
         batch_size = 32
         train_dataloader = torch.utils.data.DataLoader(
             datasets.MNIST("./mnist_data", train=True, download=True,
@@ -159,4 +164,4 @@ if __name__ == '__main__':
         plt.show()
 
 
-    mnist_test()
+    fashion_mnist()
