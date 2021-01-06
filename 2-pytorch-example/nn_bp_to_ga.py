@@ -102,7 +102,9 @@ def split_concat_array():
     print(c)
     print(d)
 
-    print(np.random.rand() * np.random.normal(0, np.std(c), c.shape))
+    e = np.random.rand() * np.random.normal(0, np.std(c), c.shape)
+    print(e)
+    print(np.random.rand() * np.random.normal(0, np.std(e), e.shape))
 
 
 def pop_pool_test():
@@ -174,9 +176,19 @@ def selection_test(fitness_value):
     return evaluation[-1]
 
 
+def cross_2():
+    a = np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5))
+
+    b = np.zeros((20, 1, 5, 5))
+
+    for idx, c in enumerate(a):
+        b[idx] = c
+
+    print(b)
+
 # pop_pool_test()
 
-split_concat_array()
+# split_concat_array()
 
 # bp_nn(w1=w_1, w2=w_2)
 

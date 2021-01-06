@@ -1,17 +1,18 @@
+import csv
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
-import csv
+import random
 
 if __name__ == '__main__':
 
     print("PyTorch Version: ", torch.__version__)
 
-    pop_size = 20
-    generations = 20
+    pop_size = 1
+    generations = 1
 
     """
     Genetic Operators
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     
     """
     CROSS_RATE = 0.5
-    MUTATION_RATE = 0.2
+    MUTATION_RATE = 0.1
 
     # can set to zero if not using elite selection function
     elite_percent = 0.1  # defining the max number of elite individuals
@@ -81,12 +82,12 @@ if __name__ == '__main__':
                                     transforms.ToTensor(),
                                 ]))
 
-    data = [d[0].data.cpu().numpy() for d in mnist_data]
 
-    # get mean and std to normalize it
-    print(np.mean(data))
-    print(np.std(data))
-
+    # data = [d[0].data.cpu().numpy() for d in mnist_data]
+    #
+    # # get mean and std to normalize it
+    # print(np.mean(data))
+    # print(np.std(data))
 
     def train(model, device, train_loader):
 
@@ -94,102 +95,113 @@ if __name__ == '__main__':
         global elite_pool_2
 
         # disable gradiant descent
-        with torch.no_grad():
-            for idx, (data, target) in enumerate(train_loader):
-                data, target = data.to(device), target.to(device)
+        # with torch.no_grad():
+        for idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(device), target.to(device)
 
-                # need to run GA in every batch
-                for num_gen in range(generations):
-                    weights_1_pop = []  # current gen
-                    weights_2_pop = []  # current gen
+            # need to run GA in every batch
+            for num_gen in range(generations):
+                weights_1_pop = []  # current gen
+                weights_2_pop = []  # current gen
 
-                    new_conv1_pop = []  # for next gen
-                    new_conv2_pop = []  # for next gen
+                new_conv1_pop = []  # for next gen
+                new_conv2_pop = []  # for next gen
 
-                    if num_gen == 0 and idx == 0:
-                        """
-                        if it is first generation
-                        then initialize with a random array
-                        """
-                        weights_1_pop = [np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)) for i in range(20)]
-                        weights_2_pop = [np.random.uniform(low=-1, high=1, size=(50, 20, 5, 5)) for i in range(20)]
-                    else:
-                        """
-                        if it is not first generation
-                        then, run a [!--selection function--!] to generate parents
-                        and also run [!--GA operators--!]
-                        """
-                        # elite_percent new_chromosome_percent
-                        pool_1 = sorted(elite_pool_1, key=lambda x: x['loss'])
-                        pool_2 = sorted(elite_pool_2, key=lambda x: x['loss'])
+                if not elite_pool_1 or not elite_pool_2:
+                    """
+                    if it is first generation
+                    then initialize with a random array
+                    """
+                    weights_1_pop = [np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)) for i in range(pop_size)]
+                    weights_2_pop = [np.random.uniform(low=-1, high=1, size=(50, 20, 5, 5)) for i in
+                                     range(pop_size)]
+                else:
+                    """
+                    if it is not first generation
+                    then, run a [!--selection function--!] to generate parents
+                    and also run [!--GA operators--!]
+                    """
+                    # elite_percent new_chromosome_percent
+                    pool_1 = sorted(elite_pool_1, key=lambda x: x['loss'])
+                    pool_2 = sorted(elite_pool_2, key=lambda x: x['loss'])
 
-                        num_elite = round(pop_size * elite_percent)
-                        num_new = round(pop_size * new_chromosome_percent)
+                    num_elite = round(pop_size * elite_percent)
+                    num_new = round(pop_size * new_chromosome_percent)
 
-                        num_matate_crossover_pool = pop_size - num_elite - num_new
+                    num_matate_crossover_pool = pop_size - num_elite - num_new
 
-                        for idx_elite in range(num_elite):
-                            weights_1_pop.append(pool_1[idx_elite]["weights"])
-                            weights_2_pop.append(pool_2[idx_elite]["weights"])
+                    for idx_elite in range(num_elite):
+                        weights_1_pop.append(pool_1[idx_elite]["weights"])
+                        weights_2_pop.append(pool_2[idx_elite]["weights"])
 
-                        for idx_new in range(num_new):
-                            weights_1_pop.append(np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)))
-                            weights_2_pop.append(np.random.uniform(low=-1, high=1, size=(50, 20, 5, 5)))
+                    for idx_new in range(num_new):
+                        weights_1_pop.append(np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)))
+                        weights_2_pop.append(np.random.uniform(low=-1, high=1, size=(50, 20, 5, 5)))
 
-                        for idx_previous in range(num_matate_crossover_pool):
-                            weights_1_pop.append(ga_operation(pool_1))
-                            weights_2_pop.append(ga_operation(pool_2))
+                    for idx_previous in range(num_matate_crossover_pool):
+                        weights_1_pop.append(ga_operation(pool_1))
+                        weights_2_pop.append(ga_operation(pool_2))
 
-                    # then, save the new weights in this model
-                    # iterate chromosome in this population
-                    for idx_chromosome in range(pop_size):
-                        conv_1_cur_gen = weights_1_pop[idx_chromosome]
-                        conv_2_cur_gen = weights_2_pop[idx_chromosome]
+                best_loss = 99999
+                best_loss_idx = 99999
+                # then, save the new weights in this model
+                # iterate chromosome in this population
+                for idx_chromosome in range(pop_size):
+                    conv_1_cur_gen = weights_1_pop[idx_chromosome]
+                    conv_2_cur_gen = weights_2_pop[idx_chromosome]
 
-                        with torch.no_grad():
-                            for name, p in model.named_parameters():
-                                if 'conv1.weight' == name:
-                                    p.copy_(torch.tensor(conv_1_cur_gen))
-                                if 'conv2.weight' == name:
-                                    p.copy_(torch.tensor(conv_2_cur_gen))
+                    with torch.no_grad():
+                        params = model.named_parameters()
+                        for name, p in params:
+                            if 'conv1.weight' == name:
+                                p.copy_(torch.tensor(conv_1_cur_gen))
+                            elif 'conv2.weight' == name:
+                                p.copy_(torch.tensor(conv_2_cur_gen))
 
-                            pred = model(data)
-                            loss = F.nll_loss(pred, target)
-                            loss_val = loss.item()
+                        pred = model(data)
+                        loss = F.nll_loss(pred, target)
 
-                            new_conv1_pop.append({
-                                'index': idx,
-                                'generation': num_gen,
-                                'individual': idx_chromosome,
-                                'loss': loss_val,
-                                'inverse_loss': 999999999 if not loss_val else 1 / loss_val,
-                                'weights': conv_1_cur_gen,
-                            })
+                        # loss.backward()
 
-                            new_conv2_pop.append({
-                                'index': idx,
-                                'generation': num_gen,
-                                'individual': idx_chromosome,
-                                'loss': loss_val,
-                                'inverse_loss': 999999999 if not loss_val else 1 / loss_val,
-                                'weights': conv_2_cur_gen,
-                            })
+                        loss_val = loss.item()
 
-                            if idx % 100 == 0:
-                                print("Generation: {},Chromosome Idx: {} , iteration: {}, Loss: {}"
-                                      .format(num_gen, idx_chromosome, idx, loss_val))
+                        if loss_val < best_loss:
+                            best_loss = loss_val
+                            best_loss_idx = idx_chromosome
 
-                            with open('ga_mnist_history.csv', mode='a') as employee_file:
-                                history_writer = csv.writer(employee_file,
-                                                            delimiter=',',
-                                                            quotechar='"',
-                                                            quoting=csv.QUOTE_MINIMAL
-                                                            )
-                                history_writer.writerow([num_gen, idx_chromosome, idx, loss_val])
+                        new_conv1_pop.append({
+                            'index': idx,
+                            'generation': num_gen,
+                            'individual': idx_chromosome,
+                            'loss': loss_val,
+                            'inverse_loss': 999999999 if not loss_val else 1 / loss_val,
+                            'weights': conv_1_cur_gen,
+                        })
 
-                    for idx_chromosome in range(pop_size):
-                        elite_pool_1 = update_population(elite_pool_1, new_conv1_pop[idx_chromosome], pop_size)
-                        elite_pool_2 = update_population(elite_pool_2, new_conv2_pop[idx_chromosome], pop_size)
+                        new_conv2_pop.append({
+                            'index': idx,
+                            'generation': num_gen,
+                            'individual': idx_chromosome,
+                            'loss': loss_val,
+                            'inverse_loss': 999999999 if not loss_val else 1 / loss_val,
+                            'weights': conv_2_cur_gen,
+                        })
+
+                        if idx % 100 == 0:
+                            print("Generation: {},Chromosome Idx: {} , iteration: {}, Loss: {}"
+                                  .format(num_gen, idx_chromosome, idx, loss_val))
+
+                with open('ga_mnist_history.csv', mode='a') as employee_file:
+                    history_writer = csv.writer(employee_file,
+                                                delimiter=',',
+                                                quotechar='"',
+                                                quoting=csv.QUOTE_MINIMAL
+                                                )
+                    history_writer.writerow([num_gen, best_loss_idx, idx, best_loss])
+
+                for idx_chromosome in range(pop_size):
+                    elite_pool_1 = update_population(elite_pool_1, new_conv1_pop[idx_chromosome], pop_size)
+                    elite_pool_2 = update_population(elite_pool_2, new_conv2_pop[idx_chromosome], pop_size)
 
 
     def test(model, device, test_loader):
@@ -330,21 +342,24 @@ if __name__ == '__main__':
             parent_1 = basic_selection(pool)['weights']
             parent_2 = basic_selection(pool)['weights']
 
-            a = np.array_split(parent_1, 2)
-            b = np.array_split(parent_2, 2)
+            offspring = np.zeros(parent_1.shape)
+            for idx, parent in enumerate(parent_1):
+                # a = np.array_split(parent_1, 2)
+                # b = np.array_split(parent_2, 2)
+                # offspring_1 = np.concatenate((a[0], b[1]))
+                # offspring_2 = np.concatenate((b[0], a[1]))
+                if np.random.rand() > 0.5:
+                    offspring[idx] = parent
+                else:
+                    offspring[idx] = parent_2[idx]
 
-            offspring_1 = np.concatenate((a[0], b[1]))
-            offspring_2 = np.concatenate((b[0], a[1]))
-
-            if np.random.rand() > 0.5:
-                next_individual = offspring_1
-            else:
-                next_individual = offspring_2
+            next_individual = offspring
 
         if np.random.rand() > MUTATION_RATE:
-            next_individual = next_individual + (
-                    np.random.rand() * np.random.normal(0, np.std(next_individual), next_individual.shape)
-            )
+            next_individual = 1e-3 * np.random.rand() * np.random.normal(0,
+                                                                         np.std(next_individual),
+                                                                         next_individual.shape
+                                                                         )
 
         return next_individual
 
