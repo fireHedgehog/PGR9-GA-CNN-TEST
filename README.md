@@ -1,5 +1,10 @@
 # PGR9-GA-CNN-TEST
 
+###### MNIST
+
+mnist_test.py   ---   benchmark (BP SGD - CNN)
+
+z_ga_mnist.py   ---   GA        (GA     - CNN)
 
 -----------------------------------------------------------------------------
 Reference:
@@ -18,4 +23,4 @@ https://pytorch.org/tutorials/
 
 https://github.com/pytorch/tutorials/blob/master/beginner_source/blitz/neural_networks_tutorial.py
 
-https://github.com/ZeweiChu/PyTorch-Course/blob/master/notebooks/5.CNN-Image-Classification.ipynb
+https://github.com/ZeweiChu/PyTorch-Course

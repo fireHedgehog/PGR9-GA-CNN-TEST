@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
+from GAOptimizer import GAOptimizer
 
 if __name__ == '__main__':
 
@@ -31,18 +31,6 @@ if __name__ == '__main__':
             return F.log_softmax(x, dim=1)  # log probability
 
 
-    mnist_data = datasets.MNIST("./mnist_data", train=True, download=True,
-                                transform=transforms.Compose([
-                                    transforms.ToTensor(),
-                                ]))
-
-    data = [d[0].data.cpu().numpy() for d in mnist_data]
-
-    np.mean(data)
-
-    np.std(data)
-
-
     def train(model, device, train_loader, optimizer, epoch):
         model.train()
         for idx, (data, target) in enumerate(train_loader):
@@ -55,16 +43,10 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            # with torch.no_grad():
-            #     for name, p in model.named_parameters():
-            #         if 'conv1.weight' == name:
-            #             print(p.cpu().detach().numpy())
-            #             break
-            # break
-
             if idx % 100 == 0:
-                print("Train Epoch: {}, iteration: {}, Loss: {}".format(
-                    epoch, idx, loss.item()))
+                print(
+                    "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
+                )
 
 
     def test(model, device, test_loader):
@@ -94,22 +76,30 @@ if __name__ == '__main__':
 
         batch_size = 32
         train_dataloader = torch.utils.data.DataLoader(
-            datasets.MNIST("./mnist_data", train=True, download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
-            batch_size=batch_size, shuffle=True,
-            num_workers=1, pin_memory=True
+            datasets.MNIST(
+                "../mnist_data",
+                train=True,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.1307,), (0.3081,))
+                ])),
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=1,
+            pin_memory=True
         )
         test_dataloader = torch.utils.data.DataLoader(
-            datasets.MNIST("./mnist_data", train=False, download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
-            batch_size=batch_size, shuffle=True,
-            num_workers=1, pin_memory=True
+            datasets.MNIST(
+                "../mnist_data",
+                train=False,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.1307,), (0.3081,))
+                ])),
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=1,
+            pin_memory=True
         )
 
         lr = 0.01
@@ -129,28 +119,34 @@ if __name__ == '__main__':
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         batch_size = 32
         train_dataloader = torch.utils.data.DataLoader(
-            datasets.FashionMNIST("./fashion_mnist_data", train=True, download=True,
-                                  transform=transforms.Compose([
-                                      transforms.ToTensor(),
-                                      transforms.Normalize((0.1307,), (0.3081,))
-                                  ])),
-            batch_size=batch_size, shuffle=True,
-            num_workers=1, pin_memory=True
+            datasets.FashionMNIST(
+                "../fashion_mnist_data",
+                train=True,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.1307,), (0.3081,))
+                ])),
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=1,
+            pin_memory=True
         )
         test_dataloader = torch.utils.data.DataLoader(
-            datasets.FashionMNIST("./fashion_mnist_data", train=False, download=True,
-                                  transform=transforms.Compose([
-                                      transforms.ToTensor(),
-                                      transforms.Normalize((0.1307,), (0.3081,))
-                                  ])),
-            batch_size=batch_size, shuffle=True,
-            num_workers=1, pin_memory=True
+            datasets.FashionMNIST(
+                "../fashion_mnist_data",
+                train=False,
+                transform=transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.1307,), (0.3081,))
+                ])),
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=1,
+            pin_memory=True
         )
 
-        lr = 0.01
-        momentum = 0.5
         model = Net().to(device)
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+        optimizer = GAOptimizer(model.parameters())
 
         num_epochs = 2
         for epoch in range(num_epochs):
@@ -158,18 +154,6 @@ if __name__ == '__main__':
             test(model, device, test_dataloader)
 
         torch.save(model.state_dict(), "fashion_mnist_cnn.pt")
-
-
-    def plot_acc(num_epochs, ohist, scratch_hist):
-        plt.title("Validation Accuracy vs. Number of Training Epochs")
-        plt.xlabel("Training Epochs")
-        plt.ylabel("Validation Accuracy")
-        plt.plot(range(1, num_epochs + 1), ohist, label="Pretrained")
-        plt.plot(range(1, num_epochs + 1), scratch_hist, label="Scratch")
-        plt.ylim((0, 1.))
-        plt.xticks(np.arange(1, num_epochs + 1, 1.0))
-        plt.legend()
-        plt.show()
 
 
     fashion_mnist()

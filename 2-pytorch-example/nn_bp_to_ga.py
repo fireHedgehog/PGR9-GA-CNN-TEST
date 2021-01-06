@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import torch.nn as nn
+import random
 
 dtype = torch.float
 device = torch.device("cpu")
@@ -25,10 +26,10 @@ elite_pool_1 = [np.random.uniform(low=-1, high=1, size=(20, 1, 5, 5)) for i in r
 #     # print(idx, data.shape)
 #     print(idx, data)
 
-elite_pool_2 = [nn.Conv2d(20, 50, 5, 1) for i in range(20)]
-for idx, data in enumerate(elite_pool_2):
-    # print(idx, data.shape)
-    print(idx, data)
+# elite_pool_2 = [nn.Conv2d(20, 50, 5, 1) for i in range(20)]
+# for idx, data in enumerate(elite_pool_2):
+#     # print(idx, data.shape)
+#     print(idx, data)
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
@@ -101,6 +102,8 @@ def split_concat_array():
     print(c)
     print(d)
 
+    print(np.random.rand() * np.random.normal(0, np.std(c), c.shape))
+
 
 def pop_pool_test():
     all_parents = []
@@ -110,6 +113,7 @@ def pop_pool_test():
         all_parents.append({
             'iter': i,
             'loss': loss,
+            'inverse_loss': 999999999 if not loss else 1 / loss,
             'weights': np.array([
                 [1, 1, 1, 1],
                 [1, 1, 1, 1],
@@ -133,6 +137,7 @@ def pop_pool_test():
         sorted_arr[0] = {
             'iter': 11,
             'loss': loss_new,
+            'inverse_loss': 999999999 if not loss_new else 1 / loss_new,
             'weights': np.array([
                 [1, 1, 1, 1],
                 [1, 1, 1, 1],
@@ -143,10 +148,35 @@ def pop_pool_test():
         }
         print(sorted_arr)
 
+    selected = []
+    for idx in range(5):
+        selected.append(selection_test(sorted_arr))
+
+    print("------selected : \n", selected)
+
+
+def selection_test(fitness_value):
+    sorted_fitness = sorted(fitness_value, key=lambda x: x['inverse_loss'])
+    cum_acc = np.array([e['inverse_loss'] for e in sorted_fitness]).cumsum()
+
+    evaluation = [{
+        'iter': e['iter'],
+        'inverse_loss': e['inverse_loss'],
+        'cum_acc': acc
+    } for e, acc in zip(sorted_fitness, cum_acc)]
+
+    rand = np.random.rand() * cum_acc[-1]
+
+    for e in evaluation:
+        if rand < e['cum_acc']:
+            return e
+
+    return evaluation[-1]
+
 
 # pop_pool_test()
 
-# split_concat_array()
+split_concat_array()
 
 # bp_nn(w1=w_1, w2=w_2)
 
