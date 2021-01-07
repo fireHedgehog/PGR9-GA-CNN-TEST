@@ -186,6 +186,7 @@ def cross_2():
 
     print(b)
 
+
 # pop_pool_test()
 
 # split_concat_array()
@@ -193,3 +194,15 @@ def cross_2():
 # bp_nn(w1=w_1, w2=w_2)
 
 # print(np.empty((20, 1, 3, 3)))
+a = np.array([
+    [0.2, 0.2, 1, 1],
+    [1, 0.2, 1, 1],
+    [1, 1, 0.2, 1],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+])
+print(np.random.normal(0,
+                       1,
+                       a.shape
+                       )
+      )

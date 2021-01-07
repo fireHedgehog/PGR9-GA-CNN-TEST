@@ -36,12 +36,24 @@ if __name__ == '__main__':
         for idx, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
 
-            pred = model(data)  # batch_size * 10
-            loss = F.nll_loss(pred, target)
-            # SGD
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            """"
+                        pred = model(data)  # batch_size * 10
+                        loss = F.nll_loss(pred, target)
+                        # SGD
+                        optimizer.zero_grad()
+                        loss.backward()
+            """
+
+            def closure():
+                if torch.is_grad_enabled():
+                    optimizer.zero_grad()
+                _pred = model(data)
+                _loss = F.nll_loss(_pred, target)
+                if _loss.requires_grad:
+                    _loss.backward()
+                return _loss
+
+            loss = optimizer.step(closure=closure)
 
             if idx % 100 == 0:
                 print(
@@ -102,10 +114,8 @@ if __name__ == '__main__':
             pin_memory=True
         )
 
-        lr = 0.01
-        momentum = 0.5
         model = Net().to(device)
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+        optimizer = GAOptimizer(model.parameters())
 
         num_epochs = 2
         for epoch in range(num_epochs):
@@ -145,8 +155,10 @@ if __name__ == '__main__':
             pin_memory=True
         )
 
+        lr = 0.01
+        momentum = 0.5
         model = Net().to(device)
-        optimizer = GAOptimizer(model.parameters())
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
         num_epochs = 2
         for epoch in range(num_epochs):
@@ -156,4 +168,4 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), "fashion_mnist_cnn.pt")
 
 
-    fashion_mnist()
+    mnist_test()
