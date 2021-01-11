@@ -1,9 +1,9 @@
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from GAOptimizer import GAOptimizer
+import csv
 
 if __name__ == '__main__':
 
@@ -13,8 +13,8 @@ if __name__ == '__main__':
     class Net(nn.Module):
         def __init__(self):
             super(Net, self).__init__()
-            self.conv1 = nn.Conv2d(1, 20, 5, 1)  # 28 * 28 -> (28+1-5) 24 * 24
-            self.conv2 = nn.Conv2d(20, 50, 5, 1)  # 20 * 20
+            self.conv1 = nn.Conv2d(1, 20, 5, 1, bias=False)  # 28 * 28 -> (28+1-5) 24 * 24
+            self.conv2 = nn.Conv2d(20, 50, 5, 1, bias=False)  # 20 * 20
             self.fc1 = nn.Linear(4 * 4 * 50, 500)
             self.fc2 = nn.Linear(500, 10)
 
@@ -36,6 +36,9 @@ if __name__ == '__main__':
         for idx, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
 
+            # d = data.cpu().detach().numpy()
+            # print(d)
+
             """"
                         pred = model(data)  # batch_size * 10
                         loss = F.nll_loss(pred, target)
@@ -54,7 +57,16 @@ if __name__ == '__main__':
                 return _loss
 
             loss = optimizer.step(closure=closure)
-
+            print(
+                "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
+            )
+            with open('ga_opt_mnist_history.csv', mode='a') as employee_file:
+                history_writer = csv.writer(employee_file,
+                                            delimiter=',',
+                                            quotechar='"',
+                                            quoting=csv.QUOTE_MINIMAL
+                                            )
+                history_writer.writerow([epoch, idx, loss.item()])
             if idx % 100 == 0:
                 print(
                     "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
@@ -93,7 +105,7 @@ if __name__ == '__main__':
                 train=True,
                 transform=transforms.Compose([
                     transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    #  transforms.Normalize((0.1307,), (0.3081,))
                 ])),
             batch_size=batch_size,
             shuffle=True,
@@ -106,7 +118,7 @@ if __name__ == '__main__':
                 train=False,
                 transform=transforms.Compose([
                     transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    #  transforms.Normalize((0.1307,), (0.3081,))
                 ])),
             batch_size=batch_size,
             shuffle=True,
@@ -134,7 +146,7 @@ if __name__ == '__main__':
                 train=True,
                 transform=transforms.Compose([
                     transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    #  transforms.Normalize((0.1307,), (0.3081,))
                 ])),
             batch_size=batch_size,
             shuffle=True,
@@ -147,7 +159,7 @@ if __name__ == '__main__':
                 train=False,
                 transform=transforms.Compose([
                     transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    # transforms.Normalize((0.1307,), (0.3081,))
                 ])),
             batch_size=batch_size,
             shuffle=True,

@@ -194,15 +194,28 @@ def cross_2():
 # bp_nn(w1=w_1, w2=w_2)
 
 # print(np.empty((20, 1, 3, 3)))
-a = np.array([
-    [0.2, 0.2, 1, 1],
-    [1, 0.2, 1, 1],
-    [1, 1, 0.2, 1],
-    [1, 1, 1, 1],
-    [1, 1, 1, 1],
-])
-print(np.random.normal(0,
-                       1,
-                       a.shape
-                       )
-      )
+# a = np.array([
+#     [0.2, 0.2, 1, 1],
+#     [1, 0.2, 1, 1],
+#     [1, 1, 0.2, 1],
+#     [1, 1, 1, 1],
+#     [1, 1, 1, 1],
+# ])
+# print(np.random.normal(0,
+#                        1,
+#                        a.shape
+#                        )
+#       )
+
+
+# print(np.random.randint(-999, 999, (20, 1, 3, 3)) / pow(10, 5))
+
+
+# print(np.empty((20, 1, 3, 3)).flatten())
+
+print(np.random.randint(-999, 999) / pow(10, 3))
+
+# a = np.empty((20, 1, 3, 3)).flatten()
+#
+# for i, v in enumerate(a):
+#     print(v)
