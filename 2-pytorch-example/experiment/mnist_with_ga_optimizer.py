@@ -13,8 +13,8 @@ if __name__ == '__main__':
     class Net(nn.Module):
         def __init__(self):
             super(Net, self).__init__()
-            self.conv1 = nn.Conv2d(1, 20, 5, 1, bias=False)  # 28 * 28 -> (28+1-5) 24 * 24
-            self.conv2 = nn.Conv2d(20, 50, 5, 1, bias=False)  # 20 * 20
+            self.conv1 = nn.Conv2d(1, 20, 5, 1)  # 28 * 28 -> (28+1-5) 24 * 24
+            self.conv2 = nn.Conv2d(20, 50, 5, 1)  # 20 * 20
             self.fc1 = nn.Linear(4 * 4 * 50, 500)
             self.fc2 = nn.Linear(500, 10)
 
