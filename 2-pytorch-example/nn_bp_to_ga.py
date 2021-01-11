@@ -213,7 +213,7 @@ def cross_2():
 
 # print(np.empty((20, 1, 3, 3)).flatten())
 
-print(np.random.randint(-999, 999) / pow(10, 3))
+print(np.random.randint(-9999, 9999) / pow(10, 4))
 
 # a = np.empty((20, 1, 3, 3)).flatten()
 #

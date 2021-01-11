@@ -8,6 +8,9 @@ def _get_random_weights_by_shape(shape, bit, upper_lower_range):
 
     # # obsolete:　return np.random.uniform(low=-1, high=1, size=shape)
 
+    if not np.random.rand() > 0.5:
+        bit = bit + 1
+
     if not shape:
         return np.random.randint(-upper_lower_range, upper_lower_range) / pow(10, bit)
     else:
@@ -75,7 +78,7 @@ def _ga_operation(weights_pool, crossover_rate, mutation_rate, bit, upper_lower_
                 # ____________________________________________
                 value_by_index = element_1  # take parent_1's as default
                 if p_cross > crossover_rate:
-                    if np.random.rand() > 0.5:
+                    if np.random.rand() > crossover_rate:
                         # take parent_2's weights
                         value_by_index = flatten_param_parent_2[j]
 
@@ -83,7 +86,7 @@ def _ga_operation(weights_pool, crossover_rate, mutation_rate, bit, upper_lower_
                 # check if it needs mutation or not
                 # ____________________________________________
                 if p_mutate > mutation_rate:
-                    if np.random.rand() > 0.5:
+                    if np.random.rand() > mutation_rate:
                         # random value
                         value_by_index = _get_random_weights_by_shape(shape=False,
                                                                       bit=bit,
@@ -157,12 +160,12 @@ class GAOptimizer(Optimizer):
 
     def __init__(self,
                  params,
-                 generation_size=10,
-                 pop_size=10,
-                 mutation_rate=0.7,
-                 crossover_rate=0.5,
-                 elite_rate=0.0,
-                 new_chromosome_rate=0.0,
+                 generation_size=15,
+                 pop_size=15,
+                 mutation_rate=0.6,
+                 crossover_rate=0.6,
+                 elite_rate=0.14,
+                 new_chromosome_rate=0.14,
                  weights_val_bit=3,
                  weights_upper_lower_range=999):
 

@@ -129,7 +129,7 @@ if __name__ == '__main__':
         model = Net().to(device)
         optimizer = GAOptimizer(model.parameters())
 
-        num_epochs = 2
+        num_epochs = 5
         for epoch in range(num_epochs):
             train(model, device, train_dataloader, optimizer, epoch)
             test(model, device, test_dataloader)
