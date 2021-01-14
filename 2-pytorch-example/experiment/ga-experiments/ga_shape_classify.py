@@ -88,7 +88,7 @@ if __name__ == '__main__':
                     _loss.backward()
                 return _loss
 
-            loss = optimizer.step(closure=closure, p_index=idx)
+            loss = optimizer.step(closure=closure, iteration_index=idx)
 
             print(
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
@@ -106,6 +106,9 @@ if __name__ == '__main__':
                 print(
                     "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
                 )
+
+            if loss.item() < 0.120:
+                break
 
 
     def test(model, device, test_loader):
@@ -141,7 +144,7 @@ if __name__ == '__main__':
         dataset = datasets.ImageFolder(root='../data/shapes/',
                                        transform=data_transform)
 
-        trainset, valset = random_split(dataset, [250, 50])
+        trainset, valset = random_split(dataset, [220, 80])
 
         train_dataloader = DataLoader(trainset,
                                       batch_size=10,
@@ -160,14 +163,14 @@ if __name__ == '__main__':
         model = Net().to(device)
         optimizer = GAOptimizer(
             params=model.parameters(),
-            generation_size=40,
+            generation_size=200,
             pop_size=100,
-            mutation_rate=0.7,
-            crossover_rate=0.7,
+            mutation_rate=0.65,
+            crossover_rate=0.65,
             elite_rate=0.10,
-            new_chromosome_rate=0.02,
-            weights_val_bit=3,
-            weights_upper_lower_range=999,
+            new_chromosome_rate=0.10,
+            weights_val_bit=4,
+            weights_upper_lower_range=3599,
             save_csv_files=True
         )
 

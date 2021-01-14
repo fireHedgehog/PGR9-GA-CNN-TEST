@@ -200,7 +200,7 @@ class GAOptimizer(Optimizer):
     #         group.setdefault('population', [])
 
     @torch.no_grad()
-    def step(self, closure=None, p_index=0):
+    def step(self, closure=None, iteration_index=0):
         """Performs a single optimization step.
 
         Args:
@@ -347,7 +347,7 @@ class GAOptimizer(Optimizer):
                                                         quotechar='"',
                                                         quoting=csv.QUOTE_MINIMAL
                                                         )
-                            history_writer.writerow([p_index, gen_num, pop_num, loss_val])
+                            history_writer.writerow([iteration_index, gen_num, pop_num, loss_val])
 
                 # ascent sort. first element is the best performed individual
                 self.population = _update_population(sorted_params,

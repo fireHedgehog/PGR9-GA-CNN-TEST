@@ -117,6 +117,8 @@ if __name__ == '__main__':
 
         total_loss /= len(test_loader.dataset)
         acc = correct / len(test_loader.dataset) * 100.
+        if acc > 70:
+            print(acc)
         print("Test loss: {}, Accuracy: {}".format(total_loss, acc))
 
 
@@ -143,7 +145,7 @@ if __name__ == '__main__':
         dataset = datasets.ImageFolder(root='data/shapes/',
                                        transform=data_transform)
 
-        trainset, valset = random_split(dataset, [250, 50])
+        trainset, valset = random_split(dataset, [240, 60])
 
         train_dataloader = DataLoader(trainset,
                                       batch_size=10,
