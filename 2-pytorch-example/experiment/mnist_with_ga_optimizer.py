@@ -4,6 +4,8 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from GAOptimizer import GAOptimizer
 import csv
+from ShapeDataSet import ShapeDataset
+from torch.utils.data import Dataset, DataLoader, random_split
 
 if __name__ == '__main__':
 
