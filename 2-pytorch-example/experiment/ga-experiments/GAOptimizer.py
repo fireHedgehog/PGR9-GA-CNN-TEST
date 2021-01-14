@@ -341,7 +341,7 @@ class GAOptimizer(Optimizer):
                     })
 
                     if save_csv_files:
-                        with open('./genetic_algorithm_opt_history.csv', mode='a') as history_file:
+                        with open('./Line_genetic_algorithm_opt_history.csv', mode='a') as history_file:
                             history_writer = csv.writer(history_file,
                                                         delimiter=',',
                                                         quotechar='"',
