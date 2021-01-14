@@ -94,7 +94,7 @@ if __name__ == '__main__':
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
             )
 
-            with open('ga_opt_Line_history.csv', mode='a') as history_file:
+            with open('ga_opt_shapes_2_history.csv', mode='a') as history_file:
                 history_writer = csv.writer(history_file,
                                             delimiter=',',
                                             quotechar='"',
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                     "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
                 )
 
-            if loss.item() < 0.010:
+            if loss.item() < 0.042:
                 break
 
 
@@ -138,13 +138,13 @@ if __name__ == '__main__':
         data_transform = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            transforms.Normalize((0.9464835,), (0.1556641,))
+            # transforms.Normalize((0.9464835,), (0.1556641,))
         ])
 
-        dataset = datasets.ImageFolder(root='../data/lines/',
+        dataset = datasets.ImageFolder(root='../data/shapes_2/',
                                        transform=data_transform)
 
-        trainset, valset = random_split(dataset, [170, 50])
+        trainset, valset = random_split(dataset, [240, 60])
 
         train_dataloader = DataLoader(trainset,
                                       batch_size=10,
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         train(model, device, train_dataloader, optimizer, 0)
         test(model, device, test_dataloader)
 
-        torch.save(model.state_dict(), "LINES_GA_cnn.pt")
+        torch.save(model.state_dict(), "shapes_2_GA_cnn.pt")
 
 
     shape_class_test()
