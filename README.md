@@ -1,10 +1,21 @@
 # PGR9-GA-CNN-TEST
 
-###### MNIST
+## 1 . Directory 1-digit-recognition-example
 
-mnist_test.py   ---   benchmark (BP SGD - CNN)
+This folder is about literature reviews from journal articles and some tutorials.
 
-z_ga_mnist.py   ---   GA        (GA     - CNN)
+## 2 . Directory 2-pytorch-example
+
+This folder is about my experiments.
+
+1. Using pytorch to customize Neural Networks.
+
+2. Extending PyTorch-->Optimizer Abstract functions to develop Genetic Algorithm Optimizer function.
+
+3. Testing the performance of the my GA Optimizer.
+
+4. Datasets are as follows,
+
 
 -----------------------------------------------------------------------------
 Reference:

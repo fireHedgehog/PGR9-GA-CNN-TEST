@@ -94,7 +94,7 @@ if __name__ == '__main__':
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
             )
 
-            with open('ga_opt_shapes_2_history.csv', mode='a') as history_file:
+            with open('ga_opt_shapes__history.csv', mode='a') as history_file:
                 history_writer = csv.writer(history_file,
                                             delimiter=',',
                                             quotechar='"',
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         train(model, device, train_dataloader, optimizer, 0)
         test(model, device, test_dataloader)
 
-        torch.save(model.state_dict(), "shapes_2_GA_cnn.pt")
+        torch.save(model.state_dict(), "shapes___GA_cnn.pt")
 
 
     shape_class_test()
