@@ -3,6 +3,7 @@ import numpy as np
 from convGA import Conv3x3
 from maxpoolGA import MaxPool2FF
 from softmaxGA import Softmax
+import random
 
 # The mnist package takes care of handling the MNIST dataset for us!
 # Learn more at https://github.com/datapythonista/mnist
@@ -31,7 +32,7 @@ def forward(image, label):
 
     # num_filters   hard coded as   =  3
     filter_values = []
-    for i in range(3):  # population
+    for i in range(20):  # population
         # firstly, generate 20 different filters
         filter_values.append(np.random.randn(8, 3, 3) / 9)
 
@@ -39,7 +40,7 @@ def forward(image, label):
     loss = 100
     acc = 0
 
-    for generation in range(5):  # generation size = 100
+    for generation in range(100):  # generation size = 100
         for j, filter_value in enumerate(filter_values):  # population size
             out = conv.forward((image / 255) - 0.5, filter_value)
             out = pool.forward(out)
@@ -49,10 +50,68 @@ def forward(image, label):
             if new_loss < loss:
                 loss = new_loss
                 acc = 1 if np.argmax(out) == label else 0
-            else:
-                filter_values[j] = np.random.randn(8, 3, 3) / 9
+                # else:
+                # filter_values[j] = np.random.randn(8, 3, 3) / 9
+
+        # mutation
+        for k, filter_value in enumerate(filter_values):
+            mutation_probability = random.uniform(0, 1)
+            # if larger than 0.5 then mutate
+            if mutation_probability > 0.5:
+                # random number of elements to change
+                # because it is 3x3 filter,
+                #  8 x (3x3) = 72
+                # so, we don't want to change to many element
+                number_of_elements = random.randint(1, 20)  # TODO: optimize the param
+
+                # the elements that have been already changed
+                has_changed_list = []
+                for h in range(number_of_elements):
+                    row = random.randint(0, 2)
+                    col = random.randint(0, 2)
+                    # filter_size = 8 x (3x3),
+                    # so randomly change one filter
+                    the_number = random.randint(0, 7)
+                    key_value_pair = the_number + row + col
+
+                    if key_value_pair not in has_changed_list:
+                        element = filter_value[the_number, row, col]
+                        # TODO: find a better way of mutating the filter weight
+                        filter_value[the_number, row, col] = mutation(element)
+                        has_changed_list.append(key_value_pair)
 
     return out, loss, acc
+
+
+def mutation(element):
+    """
+    :param element:
+    :return:
+    """
+
+    # define a random param between -1.5 to 1.5
+    v = 3.0 * random.random()
+    epsilon = 1.5 - v
+    if v >= 1.5:
+        epsilon = v - 3.0
+
+    #     operator are:  +, -, x, ÷
+    #               or  0 or 1
+    probability_operation = random.uniform(0, 1)
+    if probability_operation < 0.2:
+        element = element + epsilon
+    elif 0.2 <= probability_operation < 0.4:
+        element = element - epsilon
+    elif 0.4 <= probability_operation < 0.6:
+        element = element * epsilon
+    elif 0.6 <= probability_operation < 0.8:
+        element = element * epsilon
+    elif 0.8 <= probability_operation < 0.9:
+        element = 0
+    else:
+        element = 1
+
+    return element
 
 
 print('MNIST CNN initialized!')
