@@ -14,8 +14,7 @@ This folder is about my experiments.
 
 3. Testing the performance of the my GA Optimizer.
 
-4. Datasets are as follows,
-
+4. Datasets are in the path as /2-pytorch-example/experiment/_data
 
 -----------------------------------------------------------------------------
 Reference:
