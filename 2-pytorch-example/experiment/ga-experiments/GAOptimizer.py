@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch.optim import Optimizer
+import csv
 
 
 def _get_random_weights_by_shape(shape, bit, upper_lower_range):
@@ -128,7 +129,10 @@ def _roulette_selection(sorted_fitness):
 
 def _update_population(pool, new_pool, size):
     # replace param by loss value
-    for idx, value in enumerate(new_pool):
+    sorted_new_pool = sorted(new_pool, key=lambda x: x['loss_val'])
+    if not new_pool:
+        sorted_new_pool = sorted_new_pool[:size / 2]
+    for idx, value in enumerate(sorted_new_pool):
         pool = sorted(pool, key=lambda x: x['loss_val'])
         # check if the new weights has better loss value
         #   than the worst performed one in previous population
@@ -160,14 +164,16 @@ class GAOptimizer(Optimizer):
 
     def __init__(self,
                  params,
-                 generation_size=15,
-                 pop_size=15,
+                 generation_size=20,
+                 pop_size=20,
                  mutation_rate=0.6,
                  crossover_rate=0.6,
-                 elite_rate=0.14,
-                 new_chromosome_rate=0.14,
+                 elite_rate=0.10,
+                 new_chromosome_rate=0.10,
                  weights_val_bit=3,
-                 weights_upper_lower_range=999):
+                 weights_upper_lower_range=999,
+                 save_csv_files=False
+                 ):
 
         # NOTE: state management is same like LBFGS class
 
@@ -180,6 +186,7 @@ class GAOptimizer(Optimizer):
             new_chromosome_rate=new_chromosome_rate,
             weights_val_bit=weights_val_bit,
             weights_upper_lower_range=weights_upper_lower_range,
+            save_csv_files=save_csv_files,
         )
 
         super(GAOptimizer, self).__init__(params, defaults)
@@ -193,7 +200,7 @@ class GAOptimizer(Optimizer):
     #         group.setdefault('population', [])
 
     @torch.no_grad()
-    def step(self, closure=None):
+    def step(self, closure=None, p_index=0):
         """Performs a single optimization step.
 
         Args:
@@ -211,6 +218,7 @@ class GAOptimizer(Optimizer):
         new_chromosome_rate = group['new_chromosome_rate']
         bit = group['weights_val_bit']
         upper_lower_range = group['weights_upper_lower_range']
+        save_csv_files = group['save_csv_files']
 
         params = group['params']
 
@@ -331,6 +339,15 @@ class GAOptimizer(Optimizer):
                         'loss_val': loss_val,
                         'inverse_loss': inverse,
                     })
+
+                    if save_csv_files:
+                        with open('./genetic_algorithm_opt_history.csv', mode='a') as history_file:
+                            history_writer = csv.writer(history_file,
+                                                        delimiter=',',
+                                                        quotechar='"',
+                                                        quoting=csv.QUOTE_MINIMAL
+                                                        )
+                            history_writer.writerow([p_index, gen_num, pop_num, loss_val])
 
                 # ascent sort. first element is the best performed individual
                 self.population = _update_population(sorted_params,

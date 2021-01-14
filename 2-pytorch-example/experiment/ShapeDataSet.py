@@ -2,8 +2,8 @@ import os
 import numpy as np
 from matplotlib.pyplot import imread
 from torch.utils.data import DataLoader, Dataset
-from torch import tensor, float64
-from torchvision import transforms
+from torch import from_numpy, float64
+from torchvision import transforms, datasets
 from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -42,15 +42,20 @@ class ShapeDataset(Dataset):
         elif data[0] == 'triangles':
             label = 3
 
-        # print(data[1])
+        if label != 1 and label != 2 and label != 3:
+            print("------------------------------")
+            print(label)
+            print("------------------------------")
+        # print(data[1].shape)
         # print(label)
 
-        return self.to_tensor(data[1]), tensor(label)  # tensor(label, dtype=float64)
+        return self.to_tensor(data[1]), from_numpy(np.asarray(label))  # tensor(label, dtype=float64)
 
 
 if __name__ == '__main__':
     dataset = ShapeDataset('data/shapes/')
-    dataloader = DataLoader(dataset, batch_size=50, shuffle=True, num_workers=2)
+    dataloader = DataLoader(dataset, batch_size=100, shuffle=True, num_workers=2)
 
-    for i, batch in enumerate(dataloader):
-        print(i, batch)
+    for i, (data, target) in enumerate(dataloader):
+        # print(dict(Counter(dataset.targets)))
+        print(i)

@@ -2,9 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
-from GAOptimizer import GAOptimizer
 import csv
-from ShapeDataSet import ShapeDataset
 from torch.utils.data import DataLoader, random_split
 import numpy as np
 
@@ -14,52 +12,84 @@ if __name__ == '__main__':
 
 
     class Net(nn.Module):
+        input_size = [28, 28]
+        output_size = 3
+        input_channels = 1
+        channels_conv1 = 9
+        channels_conv2 = 18
+        kernel_conv1 = (3, 3)
+        kernel_conv2 = (3, 3)
+        pool_conv1 = (2, 2)
+        pool_conv2 = [2, 2]
+        fcl1_size = 50
+
         def __init__(self):
             super(Net, self).__init__()
-            self.conv1 = nn.Conv2d(1, 6, 5)
-            self.pool = nn.MaxPool2d(2, 2)
-            self.conv2 = nn.Conv2d(6, 16, 5)
-            self.fc1 = nn.Linear(16 * 4 * 4, 120)
-            self.fc2 = nn.Linear(120, 84)
-            self.fc3 = nn.Linear(84, 10)
+
+            # Define the convolutional layers
+            self.conv1 = nn.Conv2d(in_channels=self.input_channels,
+                                   out_channels=self.channels_conv1,
+                                   kernel_size=self.kernel_conv1
+                                   )
+            self.conv2 = nn.Conv2d(in_channels=self.channels_conv1,
+                                   out_channels=self.channels_conv2,
+                                   kernel_size=self.kernel_conv2)
+
+            # Calculate the convolutional layers output size (stride = 1)
+            c1 = np.array(self.input_size) - np.array(self.kernel_conv1) + 1
+            p1 = c1 // self.pool_conv1[0]
+            c2 = p1 - np.array(self.kernel_conv2) + 1
+            p2 = c2 // self.pool_conv2[0]
+            self.conv_out_size = int(p2[0] * p2[1] * self.channels_conv2)
+
+            # Define the fully connected layers
+            self.fcl1 = nn.Linear(self.conv_out_size, self.fcl1_size)
+            self.fcl2 = nn.Linear(self.fcl1_size, self.output_size)
 
         def forward(self, x):
-            x = self.pool(F.relu(self.conv1(x)))
-            x = self.pool(F.relu(self.conv2(x)))
-            x = x.view(-1, 16 * 4 * 4)
-            x = F.relu(self.fc1(x))
-            x = F.relu(self.fc2(x))
-            x = self.fc3(x)
+            # Apply convolution 1 and pooling
+            x = self.conv1(x)
+            x = F.relu(x)
+            x = F.max_pool2d(x, self.pool_conv1)
+
+            # Apply convolution 2 and pooling
+            x = self.conv2(x)
+            x = F.relu(x)
+            x = F.max_pool2d(x, self.pool_conv2)
+
+            # Reshape x to one dimmension to use as input for the fully connected layers
+            x = x.view(-1, self.conv_out_size)
+
+            # Fully connected layers
+            x = self.fcl1(x)
+            x = F.relu(x)
+            x = self.fcl2(x)
+
             return F.log_softmax(x, dim=1)
+
+
+    net = Net()
+    print(net)
 
 
     def train(model, device, train_loader, optimizer, epoch):
         model.train()
+
         for idx, (data, target) in enumerate(train_loader):
             data = data.to(device)
             target = target.to(device)
 
-            pred = model(data)  # batch_size * 10
+            optimizer.zero_grad()
+            pred = model(data)
             loss = F.nll_loss(pred, target)
             # SGD
-            optimizer.zero_grad()
             loss.backward()
-
-            # def closure():
-            #     if torch.is_grad_enabled():
-            #         optimizer.zero_grad()
-            #     _pred = model(data)
-            #     _loss = F.nll_loss(_pred, target)
-            #     if _loss.requires_grad:
-            #         _loss.backward()
-            #     return _loss
-            #
-            # loss = optimizer.step(closure=closure)
+            optimizer.step()
 
             print(
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
             )
-            with open('ga_opt_shape_history.csv', mode='a') as employee_file:
+            with open('ga-experiments/sgd_opt_shape_history.csv', mode='a') as employee_file:
                 history_writer = csv.writer(employee_file,
                                             delimiter=',',
                                             quotechar='"',
@@ -96,19 +126,36 @@ if __name__ == '__main__':
         print(torch.cuda.is_available())
         print(device)
 
-        dataset = ShapeDataset('data/shapes/')
+        # obsolete:
+        # dataset = ShapeDataset('data/shapes/')
+        # print(dataset[0][0].shape)
+        #
+        # data = [d[0].data.cpu().numpy() for d in dataset]
+        # print(np.mean(data))
+        # print(np.std(data))
+
+        data_transform = transforms.Compose([
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor(),
+            transforms.Normalize((0.9464835,), (0.1556641,))
+        ])
+
+        dataset = datasets.ImageFolder(root='data/shapes/',
+                                       transform=data_transform)
 
         trainset, valset = random_split(dataset, [250, 50])
 
         train_dataloader = DataLoader(trainset,
                                       batch_size=10,
                                       shuffle=True,
-                                      num_workers=2
+                                      num_workers=1,
+                                      # pin_memory=True,
                                       )
         test_dataloader = DataLoader(valset,
                                      batch_size=10,
                                      shuffle=True,
-                                     num_workers=2,
+                                     num_workers=1,
+                                     # pin_memory=True,
                                      )
 
         lr = 0.01
@@ -116,18 +163,10 @@ if __name__ == '__main__':
         model = Net().to(device)
         optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
-        num_epochs = 2
+        num_epochs = 10
         for epoch in range(num_epochs):
             train(model, device, train_dataloader, optimizer, epoch)
             test(model, device, test_dataloader)
-
-        # model = Net().to(device)
-        # optimizer = GAOptimizer(model.parameters())
-        #
-        # num_epochs = 5
-        # for epoch in range(num_epochs):
-        #     train(model, device, train_dataloader, optimizer, epoch)
-        #     test(model, device, test_dataloader)
 
         torch.save(model.state_dict(), "shapes_cnn.pt")
 
