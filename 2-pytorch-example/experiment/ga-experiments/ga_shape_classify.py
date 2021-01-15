@@ -94,7 +94,7 @@ if __name__ == '__main__':
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
             )
 
-            with open('ga_opt_shapes__history.csv', mode='a') as history_file:
+            with open('ga_opt_shapes_history.csv', mode='a') as history_file:
                 history_writer = csv.writer(history_file,
                                             delimiter=',',
                                             quotechar='"',
@@ -135,10 +135,15 @@ if __name__ == '__main__':
         # print(torch.cuda.is_available())
         # print(device)
 
+        # dataset_ = datasets.ImageFolder(root='../data/shapes_2/')
+        # data = [d[0].data.cpu().numpy() for d in dataset_]
+        # print(np.mean(data))
+        # print(np.std(data))
+
         data_transform = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            # transforms.Normalize((0.9464835,), (0.1556641,))
+            transforms.Normalize((0.80026174,), (0.3743306,))
         ])
 
         dataset = datasets.ImageFolder(root='../data/shapes_2/',
@@ -177,7 +182,7 @@ if __name__ == '__main__':
         train(model, device, train_dataloader, optimizer, 0)
         test(model, device, test_dataloader)
 
-        torch.save(model.state_dict(), "shapes___GA_cnn.pt")
+        torch.save(model.state_dict(), "shapes__GA_cnn.pt")
 
 
     shape_class_test()
