@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     class Net(nn.Module):
         input_size = [28, 28]
-        output_size = 3
+        output_size = 10
         input_channels = 1
         channels_conv1 = 9
         channels_conv2 = 18
@@ -143,7 +143,8 @@ if __name__ == '__main__':
         data_transform = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            transforms.Normalize((0.80026174,), (0.3743306,))
+            # transforms.Normalize((0.80026174,), (0.3743306,))
+            # transforms.Normalize((0.1307,), (0.3081,))
         ])
 
         dataset = datasets.ImageFolder(root='../data/shapes_2/',
@@ -183,6 +184,57 @@ if __name__ == '__main__':
         test(model, device, test_dataloader)
 
         torch.save(model.state_dict(), "shapes__GA_cnn.pt")
+
+
+    def minist_class_test():
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+        # Assuming that we are on a CUDA machine, this should print a CUDA device:
+        print(torch.cuda.is_available())
+        print(device)
+
+        dataset_ = datasets.MNIST(
+            "../../mnist_data",
+            train=True,
+            transform=transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,))
+            ]))
+
+        trainset, valset = random_split(dataset_, [300, 59700])
+
+        train_dataloader = DataLoader(trainset,
+                                      batch_size=10,
+                                      shuffle=True,
+                                      num_workers=1,
+                                      # pin_memory=True,
+                                      )
+
+        test_dataloader = DataLoader(valset,
+                                     batch_size=10,
+                                     shuffle=True,
+                                     num_workers=1,
+                                     # pin_memory=True,
+                                     )
+
+        model = Net().to(device)
+        optimizer = GAOptimizer(
+            params=model.parameters(),
+            generation_size=200,
+            pop_size=100,
+            mutation_rate=0.65,
+            crossover_rate=0.65,
+            elite_rate=0.10,
+            new_chromosome_rate=0.10,
+            weights_val_bit=4,
+            weights_upper_lower_range=3599,
+            save_csv_files=False
+        )
+
+        train(model, device, train_dataloader, optimizer, 0)
+        test(model, device, test_dataloader)
+
+        # torch.save(model.state_dict(), "GA_minist_cnn.pt")
 
 
     shape_class_test()
