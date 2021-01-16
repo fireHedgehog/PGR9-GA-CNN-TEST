@@ -69,8 +69,9 @@ if __name__ == '__main__':
             return F.log_softmax(x, dim=1)
 
 
-    # net = Net()
-    # print(net)
+    net = Net()
+    print(net)
+    print(net)
 
     def train(model, device, train_loader, optimizer, epoch):
         model.train()
