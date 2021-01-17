@@ -108,17 +108,32 @@ def result_line_chart():
     plt.show()
 
 
+def show_statistics():
+    df = pd.read_csv("./history_data/lines/Line_genetic_algorithm_opt_history.csv")
+    df.columns = ["Batch", "Generation", "Population", "Loss"]
+    print(df["Loss"].describe())
+
+    df1 = pd.read_csv("./history_data/cross/cross_genetic_algorithm_opt_history.csv")
+    df1.columns = ["Batch", "Generation", "Population", "Loss"]
+    print(df1["Loss"].describe())
+
+    df2 = pd.read_csv("./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv")
+    df2.columns = ["Batch", "Generation", "Population", "Loss"]
+    print(df2["Loss"].describe())
+
+
 if __name__ == '__main__':
     # result_line_chart() ### obsolete: experiment result not noticeable
-    data_1 = box_plot_per_generation(
-        path="./history_data/lines/Line_genetic_algorithm_opt_history.csv",
-        by_generation=True)
-    data_2 = box_plot_per_generation(
-        path="./history_data/cross/cross_genetic_algorithm_opt_history.csv",
-        by_generation=True)
-    data_3 = box_plot_per_generation(
-        path="./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv",
-        by_generation=True,
-        num_gen=0)
-
-    combine_box_plot(data_1, data_2, data_3)
+    # data_1 = box_plot_per_generation(
+    #     path="./history_data/lines/Line_genetic_algorithm_opt_history.csv",
+    #     by_generation=True)
+    # data_2 = box_plot_per_generation(
+    #     path="./history_data/cross/cross_genetic_algorithm_opt_history.csv",
+    #     by_generation=True)
+    # data_3 = box_plot_per_generation(
+    #     path="./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv",
+    #     by_generation=True,
+    #     num_gen=0)
+    #
+    # combine_box_plot(data_1, data_2, data_3)
+    show_statistics()
