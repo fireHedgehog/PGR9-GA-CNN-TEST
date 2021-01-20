@@ -6,6 +6,7 @@ from GAOptimizer import GAOptimizer
 import csv
 from torch.utils.data import DataLoader, random_split
 import numpy as np
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
@@ -23,6 +24,8 @@ if __name__ == '__main__':
         pool_conv1 = (2, 2)
         pool_conv2 = [2, 2]
         fcl1_size = 50
+
+        image_index = 0
 
         def __init__(self):
             super(Net, self).__init__()
@@ -50,6 +53,28 @@ if __name__ == '__main__':
         def forward(self, x):
             # Apply convolution 1 and pooling
             x = self.conv1(x)
+
+            # ---------------------------------------------------------------
+            # Debugging mode:
+            # uncomment code below to visualize feature maps
+            # ---------------------------------------------------------------
+            feature_map = x.cpu().detach().numpy()[0]
+            weights = self.conv1.weight.cpu().detach().numpy()
+            fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
+            for idx, img in enumerate(feature_map):
+                axarr[0][idx].set_ylim((0, 27))
+                axarr[0][idx].set_xlim((0, 27))
+                axarr[0][idx].imshow(img, interpolation='nearest')
+
+                weight = weights[idx][0]
+                axarr[1][idx].imshow(weight, interpolation='nearest')
+
+            plt.show()
+            plt.savefig(str(self.image_index) + ".png")
+            self.image_index = self.image_index + 1
+            print(feature_map)
+            # ---------------------------------------------------------------
+
             x = F.relu(x)
             x = F.max_pool2d(x, self.pool_conv1)
 
@@ -65,13 +90,13 @@ if __name__ == '__main__':
             x = self.fcl1(x)
             x = F.relu(x)
             x = self.fcl2(x)
+            loss = F.log_softmax(x, dim=1)
+            return loss
 
-            return F.log_softmax(x, dim=1)
 
-
-    net = Net()
-    print(net)
-    print(net)
+    # net = Net()
+    # print(net)
+    # print(net)
 
     def train(model, device, train_loader, optimizer, epoch):
         model.train()
@@ -84,6 +109,9 @@ if __name__ == '__main__':
                 if torch.is_grad_enabled():
                     optimizer.zero_grad()
                 _pred = model(data)
+                # a = model.conv1
+                # b = model.children()
+                # print(model.conv1)
                 _loss = F.nll_loss(_pred, target)
                 if _loss.requires_grad:
                     _loss.backward()
@@ -108,7 +136,7 @@ if __name__ == '__main__':
                     "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
                 )
 
-            if loss.item() < 0.042:
+            if loss.item() < 0.005:
                 break
 
 
@@ -148,20 +176,20 @@ if __name__ == '__main__':
             # transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-        dataset = datasets.ImageFolder(root='../data/shapes_2/',
+        dataset = datasets.ImageFolder(root='../data/cross/',
                                        transform=data_transform)
 
-        trainset, valset = random_split(dataset, [240, 60])
+        trainset, valset = random_split(dataset, [140, 60])
 
         train_dataloader = DataLoader(trainset,
-                                      batch_size=10,
+                                      batch_size=1,
                                       shuffle=True,
                                       num_workers=1,
                                       # pin_memory=True,
                                       )
 
         test_dataloader = DataLoader(valset,
-                                     batch_size=10,
+                                     batch_size=1,
                                      shuffle=True,
                                      num_workers=1,
                                      # pin_memory=True,
