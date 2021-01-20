@@ -70,7 +70,7 @@ if __name__ == '__main__':
                 axarr[1][idx].imshow(weight, interpolation='nearest')
 
             plt.show()
-            plt.savefig(str(self.image_index) + ".png")
+            # plt.savefig(str(self.image_index) + ".png")
             self.image_index = self.image_index + 1
             # ---------------------------------------------------------------
 
