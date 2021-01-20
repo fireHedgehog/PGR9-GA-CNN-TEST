@@ -58,20 +58,21 @@ if __name__ == '__main__':
             # Debugging mode:
             # uncomment code below to visualize feature maps
             # ---------------------------------------------------------------
-            feature_map = x.cpu().detach().numpy()[0]
-            weights = self.conv1.weight.cpu().detach().numpy()
-            fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
-            for idx, img in enumerate(feature_map):
-                axarr[0][idx].set_ylim((0, 27))
-                axarr[0][idx].set_xlim((0, 27))
-                axarr[0][idx].imshow(img, interpolation='nearest')
-
-                weight = weights[idx][0]
-                axarr[1][idx].imshow(weight, interpolation='nearest')
-
-            plt.show()
-            # plt.savefig(str(self.image_index) + ".png")
-            self.image_index = self.image_index + 1
+            # feature_map = x.cpu().detach().numpy()[0]
+            # weights = self.conv1.weight.cpu().detach().numpy()
+            # fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
+            # for idx, img in enumerate(feature_map):
+            #     axarr[0][idx].set_ylim((0, 27))
+            #     axarr[0][idx].set_xlim((0, 27))
+            #     axarr[0][idx].imshow(img, interpolation='nearest')
+            #
+            #     weight = weights[idx][0]
+            #     axarr[1][idx].imshow(weight, interpolation='nearest')
+            #
+            # plt.show()
+            # # plt.savefig(str(self.image_index) + ".png")
+            # self.image_index = self.image_index + 1
+            # ---------------------------------------------------------------
             # ---------------------------------------------------------------
 
             x = F.relu(x)
@@ -181,14 +182,14 @@ if __name__ == '__main__':
         trainset, valset = random_split(dataset, [140, 60])
 
         train_dataloader = DataLoader(trainset,
-                                      batch_size=1,
+                                      batch_size=10,
                                       shuffle=True,
                                       num_workers=1,
                                       # pin_memory=True,
                                       )
 
         test_dataloader = DataLoader(valset,
-                                     batch_size=1,
+                                     batch_size=10,
                                      shuffle=True,
                                      num_workers=1,
                                      # pin_memory=True,
@@ -197,8 +198,8 @@ if __name__ == '__main__':
         model = Net().to(device)
         optimizer = GAOptimizer(
             params=model.parameters(),
-            generation_size=40,
-            pop_size=20,
+            generation_size=200,
+            pop_size=100,
             mutation_rate=0.65,
             crossover_rate=0.65,
             elite_rate=0.10,
