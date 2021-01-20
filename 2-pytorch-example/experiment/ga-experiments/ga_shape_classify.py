@@ -72,7 +72,6 @@ if __name__ == '__main__':
             plt.show()
             plt.savefig(str(self.image_index) + ".png")
             self.image_index = self.image_index + 1
-            print(feature_map)
             # ---------------------------------------------------------------
 
             x = F.relu(x)
@@ -198,8 +197,8 @@ if __name__ == '__main__':
         model = Net().to(device)
         optimizer = GAOptimizer(
             params=model.parameters(),
-            generation_size=200,
-            pop_size=100,
+            generation_size=40,
+            pop_size=20,
             mutation_rate=0.65,
             crossover_rate=0.65,
             elite_rate=0.10,
