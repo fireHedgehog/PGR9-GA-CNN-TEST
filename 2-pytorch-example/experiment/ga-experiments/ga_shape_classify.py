@@ -53,13 +53,37 @@ if __name__ == '__main__':
         def forward(self, x):
             # Apply convolution 1 and pooling
             x = self.conv1(x)
+            x = F.relu(x)
 
             # ---------------------------------------------------------------
             # Debugging mode:
             # uncomment code below to visualize feature maps
             # ---------------------------------------------------------------
+            feature_map = x.cpu().detach().numpy()[0]
+            weights = self.conv1.weight.cpu().detach().numpy()
+            fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
+            for idx, img in enumerate(feature_map):
+                axarr[0][idx].set_ylim((0, 27))
+                axarr[0][idx].set_xlim((0, 27))
+                axarr[0][idx].imshow(img, interpolation='nearest')
+
+                weight = weights[idx][0]
+                axarr[1][idx].imshow(weight, interpolation='nearest')
+
+            plt.show()
+            # plt.savefig(str(self.image_index) + ".png")
+            self.image_index = self.image_index + 1
+            # ---------------------------------------------------------------
+            # ---------------------------------------------------------------
+
+            x = F.max_pool2d(x, self.pool_conv1)
+
+            # Apply convolution 2 and pooling
+            x = self.conv2(x)
+            x = F.relu(x)
+
             # feature_map = x.cpu().detach().numpy()[0]
-            # weights = self.conv1.weight.cpu().detach().numpy()
+            # weights = self.conv2.weight.cpu().detach().numpy()
             # fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
             # for idx, img in enumerate(feature_map):
             #     axarr[0][idx].set_ylim((0, 27))
@@ -72,15 +96,7 @@ if __name__ == '__main__':
             # plt.show()
             # # plt.savefig(str(self.image_index) + ".png")
             # self.image_index = self.image_index + 1
-            # ---------------------------------------------------------------
-            # ---------------------------------------------------------------
 
-            x = F.relu(x)
-            x = F.max_pool2d(x, self.pool_conv1)
-
-            # Apply convolution 2 and pooling
-            x = self.conv2(x)
-            x = F.relu(x)
             x = F.max_pool2d(x, self.pool_conv2)
 
             # Reshape x to one dimmension to use as input for the fully connected layers
