@@ -59,20 +59,20 @@ if __name__ == '__main__':
             # Debugging mode:
             # uncomment code below to visualize feature maps
             # ---------------------------------------------------------------
-            feature_map = x.cpu().detach().numpy()[0]
-            weights = self.conv1.weight.cpu().detach().numpy()
-            fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
-            for idx, img in enumerate(feature_map):
-                axarr[0][idx].set_ylim((0, 27))
-                axarr[0][idx].set_xlim((0, 27))
-                axarr[0][idx].imshow(img, interpolation='nearest')
-
-                weight = weights[idx][0]
-                axarr[1][idx].imshow(weight, interpolation='nearest')
-
-            plt.show()
-            # plt.savefig(str(self.image_index) + ".png")
-            self.image_index = self.image_index + 1
+            # feature_map = x.cpu().detach().numpy()[0]
+            # weights = self.conv1.weight.cpu().detach().numpy()
+            # fig, axarr = plt.subplots(2, feature_map.shape[0], figsize=(9, 2))
+            # for idx, img in enumerate(feature_map):
+            #     axarr[0][idx].set_ylim((0, 27))
+            #     axarr[0][idx].set_xlim((0, 27))
+            #     axarr[0][idx].imshow(img, interpolation='nearest')
+            #
+            #     weight = weights[idx][0]
+            #     axarr[1][idx].imshow(weight, interpolation='nearest')
+            #
+            # plt.show()
+            # # plt.savefig(str(self.image_index) + ".png")
+            # self.image_index = self.image_index + 1
             # ---------------------------------------------------------------
             # ---------------------------------------------------------------
 
