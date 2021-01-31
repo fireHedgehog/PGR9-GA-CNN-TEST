@@ -3,37 +3,6 @@ import numpy as np
 import pandas as pd
 
 
-def box_plot_example():
-    # Fixing random state for reproducibility
-    np.random.seed(19680801)
-
-    # fake up some data
-    spread = np.random.rand(50) * 100
-    center = np.ones(25) * 50
-    flier_high = np.random.rand(10) * 100 + 100
-    flier_low = np.random.rand(10) * -100
-    data = np.concatenate((spread, center, flier_high, flier_low))
-
-    spread = np.random.rand(50) * 100
-    center = np.ones(25) * 40
-    flier_high = np.random.rand(10) * 100 + 100
-    flier_low = np.random.rand(10) * -100
-    d2 = np.concatenate((spread, center, flier_high, flier_low))
-
-    ###############################################################################
-    # Making a 2-D array only works if all the columns are the
-    # same length.  If they are not, then use a list instead.
-    # This is actually more efficient because boxplot converts
-    # a 2-D array into a list of vectors internally anyway.
-
-    data = [data, d2, d2[::2]]
-    fig7, ax7 = plt.subplots()
-    ax7.set_title('Multiple Samples with Different sizes')
-    ax7.boxplot(data)
-
-    plt.show()
-
-
 def box_plot_per_generation(path, by_generation=False, num_gen=0):
     df = pd.read_csv(path)
     df.columns = ["Batch", "Generation", "Population", "Loss"]
