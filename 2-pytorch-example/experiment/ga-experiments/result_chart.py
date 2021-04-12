@@ -42,8 +42,8 @@ def get_min(box_1):
     return return_arr
 
 
-def combine_box_plot(box_1, box_2, box_3):
-    fig, axs = plt.subplots(3, sharex=True, figsize=(12, 14))
+def combine_box_plot(box_1, box_2, box_3, data_4):
+    fig, axs = plt.subplots(4, sharex=True, figsize=(12, 14))
 
     axs[0].boxplot(box_1, showfliers=False)
     axs[0].plot(get_min(box_1), '--')
@@ -60,6 +60,13 @@ def combine_box_plot(box_1, box_2, box_3):
     axs[2].set_title("Geometric Shape Classification(Loss per generation)")
     axs[2].set_ylabel("Loss Value")
     axs[2].set_xlabel("Generation")
+
+    axs[3].boxplot(data_4, showfliers=False)
+    axs[3].plot(get_min(data_4), '--')
+    axs[3].set_title("MNIST Classification(Loss per generation)")
+    axs[3].set_ylabel("Loss Value")
+    axs[3].set_xlabel("Generation")
+
     plt.xticks(ticks=[i for i in range(1, 21)],
                labels=["1", '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110',
                        '120', '130', '140', '150', '160', '170', '180', '190'
@@ -78,21 +85,26 @@ def result_line_chart():
 
 
 def show_statistics():
-    df = pd.read_csv("./history_data/lines/Line_genetic_algorithm_opt_history.csv")
-    df.columns = ["Batch", "Generation", "Population", "Loss"]
-    print(df["Loss"].describe())
+    # df = pd.read_csv("./history_data/lines/Line_genetic_algorithm_opt_history.csv")
+    # df.columns = ["Batch", "Generation", "Population", "Loss"]
+    # print(df["Loss"].describe())
+    #
+    # df1 = pd.read_csv("./history_data/cross/cross_genetic_algorithm_opt_history.csv")
+    # df1.columns = ["Batch", "Generation", "Population", "Loss"]
+    # print(df1["Loss"].describe())
+    #
+    # df2 = pd.read_csv("./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv")
+    # df2.columns = ["Batch", "Generation", "Population", "Loss"]
+    # print(df2["Loss"].describe())
 
-    df1 = pd.read_csv("./history_data/cross/cross_genetic_algorithm_opt_history.csv")
-    df1.columns = ["Batch", "Generation", "Population", "Loss"]
-    print(df1["Loss"].describe())
-
-    df2 = pd.read_csv("./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv")
-    df2.columns = ["Batch", "Generation", "Population", "Loss"]
-    print(df2["Loss"].describe())
+    df3 = pd.read_csv("./history_data/mnist/mnist1_genetic_ga_opt_history.csv")
+    df3.columns = ["Batch", "Generation", "Population", "Loss"]
+    print(df3)
+    print(df3["Loss"].describe())
 
 
 if __name__ == '__main__':
-    # result_line_chart() ### obsolete: experiment result not noticeable
+    # result_line_chart()  ### obsolete: experiment result not noticeable
     # data_1 = box_plot_per_generation(
     #     path="./history_data/lines/Line_genetic_algorithm_opt_history.csv",
     #     by_generation=True)
@@ -103,6 +115,10 @@ if __name__ == '__main__':
     #     path="./history_data/shapes_experiment_no_2/shapes___genetic_algorithm_opt_history.csv",
     #     by_generation=True,
     #     num_gen=0)
+    # data_4 = box_plot_per_generation(
+    #     path="./history_data/mnist/mnist1_genetic_ga_opt_history.csv",
+    #     by_generation=True,
+    #     num_gen=0)
+    # combine_box_plot(data_1, data_2, data_3, data_4)
     #
-    # combine_box_plot(data_1, data_2, data_3)
     show_statistics()

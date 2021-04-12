@@ -12,7 +12,6 @@ if __name__ == '__main__':
 
     print("PyTorch Version: ", torch.__version__)
 
-
     class Net(nn.Module):
         input_size = [28, 28]
         output_size = 10
@@ -139,7 +138,7 @@ if __name__ == '__main__':
                 "Train Epoch: {}, iteration: {}, Loss: {}".format(epoch, idx, loss.item())
             )
 
-            with open('ga_opt_shapes_history.csv', mode='a') as history_file:
+            with open('ga_opt_mnist_1_history.csv', mode='a') as history_file:
                 history_writer = csv.writer(history_file,
                                             delimiter=',',
                                             quotechar='"',
@@ -234,7 +233,7 @@ if __name__ == '__main__':
     def minist_class_test():
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-        # Assuming that we are on a CUDA machine, this should print a CUDA device:
+        # Assuming that we are on a CUDA machine, this should print a CUDA device: # 23.951724137931034
         print(torch.cuda.is_available())
         print(device)
 
@@ -246,7 +245,9 @@ if __name__ == '__main__':
                 transforms.Normalize((0.1307,), (0.3081,))
             ]))
 
-        trainset, valset = random_split(dataset_, [300, 59700])
+        x, y = random_split(dataset_, [10000, 50000])
+
+        trainset, valset = random_split(x, [9000, 1000])
 
         train_dataloader = DataLoader(trainset,
                                       batch_size=10,
@@ -273,13 +274,14 @@ if __name__ == '__main__':
             new_chromosome_rate=0.10,
             weights_val_bit=4,
             weights_upper_lower_range=3599,
-            save_csv_files=False
+            save_csv_files=True
         )
 
         train(model, device, train_dataloader, optimizer, 0)
         test(model, device, test_dataloader)
 
-        # torch.save(model.state_dict(), "GA_minist_cnn.pt")
+        torch.save(model.state_dict(), "GA_minist_cnn.pt")
 
 
-    shape_class_test()
+    # shape_class_test()
+    minist_class_test()
